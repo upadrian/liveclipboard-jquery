@@ -5,10 +5,7 @@
 $(function() {
 
   $('#submit').click(search);
-  $('#query').keydown(function(e) {
-    console.log(e.keyCode);
-    if (e.keyCode==13) search();
-  });
+  $('#query').keydown(function(e) { if (e.keyCode==13) search() });
     
   var properties = 
     'tbUrl,title,content,rating,duration,playUrl,published,publisher'.split(',');
