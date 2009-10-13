@@ -6,6 +6,7 @@ $(function() {
 
   $('#submit').click(search);
   $('#query').keydown(function(e) {
+    console.log(e.keyCode);
     if (e.keyCode==13) search();
   });
     
