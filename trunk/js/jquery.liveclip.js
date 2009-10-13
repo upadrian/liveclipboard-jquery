@@ -195,7 +195,7 @@
 
       } else { // getter
         return $(this).data(namespace + '-clipboard');
-      };
+      }
 
     }
     ,
