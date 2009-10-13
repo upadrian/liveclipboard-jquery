@@ -19,6 +19,10 @@
 #searchForm {
   padding-bottom : 20px;
 }
+#searchResultContainer {
+  padding : 30px 10px;
+  background-color : #ffffff;
+}
 #searchResult {
   width : 370px;
 }
@@ -27,17 +31,25 @@
   width : 90px;
   height : 90px;
   overflow : hidden;
-  background-color : #ffffff;
-  border : 1px solid #aaccff;
+  border : 1px solid #cccccc;
 }
 #searchResult .tile .tile-inner {
   margin : 5px;
   width : 80px;
-  height : 80px;
+  height : 60px;
   overflow : hidden;
+}
+#searchResult .tile .title {
+  margin : 5px;
+  width : 80px;
+  height : 15px;
+  font-size : 10px;
+  overflow : hidden;
+  white-space : nowrap;
 }
 #searchResult .selected {
   background-color : #ddeeff; !important
+  border : 1px solid #aaccff; !important
 }
 #searchResult img {
   width : 80px;
@@ -56,8 +68,10 @@
               <input type="text" value="" id="query">
               <input type="button" value="Search" id="submit">
             </div>
-            <div id="searchResult"></div>
-            <div style="clear:both"></div>
+            <div id="searchResultContainer">
+              <div id="searchResult"></div>
+              <div style="clear:both"></div>
+            </div>
           </div>
         </td>
         <td valign="top">

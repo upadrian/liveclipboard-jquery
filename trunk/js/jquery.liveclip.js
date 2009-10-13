@@ -182,7 +182,6 @@
             $.each(relayEvents, function(i, eventName) {
               clipboard.bind(eventName+'.'+namespace, function(e) { 
                 capture(target, e).trigger(e);
-                e.stopPropagation();
               });
             });
             if ($.liveclip.autoTrack) { target.bind('mouseover.'+namespace, track) }

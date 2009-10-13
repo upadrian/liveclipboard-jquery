@@ -30,7 +30,7 @@ $(function() {
     }
   }
 
-  $('#searchArea').clipboard({
+  $('#searchResultContainer').clipboard({
     paste : function(data) {
       data = data.split('\n');
       $.each(data, function(i, values) {
@@ -79,6 +79,7 @@ $(function() {
                       .attr('title', entry.title)
         )
       )
+      .append($('<div />').addClass('title').text(entry.title))
       .appendTo($('#searchResult'))
       .data('json', entry)
       .click(function() { $(this).toggleClass('selected') })
