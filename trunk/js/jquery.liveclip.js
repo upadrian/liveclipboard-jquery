@@ -1,6 +1,22 @@
 /**
+ * jQuery Live Clipboard
  *
+ * Copyright (c) 2009 Shinichi Tomita (shinichi.tomita@gmail.com)
  *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 (function($) {
 
@@ -14,19 +30,20 @@
   function track() {
     var target = $(this);
     var clipboard = target.clipboard();
-    var w = target.width(), h = target.height(), offset = target.offset();
+    var w = target.outerWidth(), h = target.outerHeight(), offset = target.offset();
+    if (/^(auto|scroll)$/.test(target.css('overflow'))) w -= 20;
     if (clipboard) clipboard.css({ width : w, height : h, top : offset.top, left : offset.left });
   }
 
   /**
-   * Finding event target element, excluding clipboard element.
-   * Pseudo event capturing, assuming no layered elements inside of element rectangle.
+   * Finding and capture event target element, excluding clipboard textarea.
+   * This is "pseudo" capturing, assuming no layered elements covering over the target.
    */
   function capture(el, e) {
     var captured = _capture(el);
     var clipboard = captured.clipboard();
-    captured = captured !== el && clipboard ? clipboard : captured;
-    return captured;
+    // if captured element has clipboard, return it. 
+    return captured !== el && clipboard ? clipboard : captured;
 
     function _capture(el) {
       var target = el;
@@ -88,18 +105,11 @@
       }, 100);
       clipboard.data(namespace+'-watcher', watchPID);
     }
-
-    //capture(target, e).trigger(e);
-
-    /*
-    e.stopPropagation();
-    e.preventDefault();
-    */
   }
 
 
   /**
-   *
+   * Keyboard down event handler
    */
   function keydownHandler(e) {
     var clipboard = $(this);
@@ -108,20 +118,22 @@
 
     if (e.metaKey) {
       switch (e.keyCode) {
-        case 67 : // Ctrl + C
+        case 67 : // Command + C
           var val = options.copy ? options.copy.call(target) : '';
           clipboard.val(val)
           clipboard.get(0).select(); 
           break;
-        case 86 : // Ctrl + V
+        case 86 : // Command + V
           if (options.paste) {
             clipboard.get(0).select(); 
             setTimeout(function() {
-              options.paste.call(target, clipboard.val())
+              var data = clipboard.val();
+              options.paste.call(target, data);
+              clipboard.val('')
             }, 10);
           }
           break;
-        case 88 : // Ctrl + X
+        case 88 : // Command + X
           var val = options.copy ? options.copy.call(target) : '';
           clipboard.val(val)
           clipboard.get(0).select(); 
@@ -138,17 +150,14 @@
       if (options.del) options.del.call(target);
     }
 
-    capture(target, e).trigger(e);
-
-    e.stopPropagation();
-    e.preventDefault();
   }
 
 
-
   $.fn.extend({
+
     /**
-     *
+     * Attach clipboard feature to block element
+     * Get current clipboard proxy textarea
      */
     clipboard : function(options) {
       var elements = this;
@@ -161,7 +170,12 @@
           if (!clipboard) { 
             clipboard = $('<textarea></textarea>')
               .addClass(namespace+'-clipboard')
-              .css($.liveclip.clipboardCSS)
+              .addClass(options.cls ? options.cls : '')
+              .css({ 
+                cursor : 'default',
+                position : 'absolute', 
+                opacity : $.liveclip.debug ? .5 : .01 
+              })
               .appendTo(document.body)
               .bind('contextmenu', contextmenuHandler)
               .bind('keydown', keydownHandler);
@@ -188,7 +202,7 @@
     ,
 
     /**
-     *
+     * remove attached clipboard feature
      */
     removeClipboard : function() {
       $(this).each(function() {
@@ -203,13 +217,14 @@
   });
 
   $.liveclip = {
-    clipboardCSS : {
-      position : 'absolute',
-      opacity : .01
-    },
+    debug : false,
     autoTrack : false
   }
 
+  /**
+   * Track all clipboard, aligning to target element position and size
+   * If no target element available in document, removing clipboard.
+   */
   $.trackClipboards = function() {
     $('body > textarea.'+namespace+'-clipboard').each(function() {
       var clipboard = $(this);
