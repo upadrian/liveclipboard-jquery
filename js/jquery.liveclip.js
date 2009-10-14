@@ -174,6 +174,7 @@
               .css({ 
                 cursor : 'default',
                 position : 'absolute', 
+                fontSize : $.liveclip.debug ? '12px' : '1px',
                 opacity : $.liveclip.debug ? .5 : .01 
               })
               .appendTo(document.body)
